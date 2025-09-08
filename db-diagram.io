@@ -1,8 +1,3 @@
-// ====================================================
-// MODELO DE NEGOCIO: LICORERA (PRODUCCIÓN) - REFACTORIZADO
-// Código para dbdiagram.io
-// ====================================================
-
 // ENTIDADES PRINCIPALES
 // ====================================================
 
