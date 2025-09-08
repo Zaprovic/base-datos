@@ -6,15 +6,17 @@ En una fábrica de licores, el negocio se centra en la producción de múltiples
 
 La producción se organiza en lotes: cada lote es una unidad de producción de un producto específico, fabricada bajo las mismas condiciones en un periodo determinado. Cada lote pertenece a un único producto, y cada producto puede tener muchos lotes a lo largo del tiempo. Cada lote se origina a partir de una combinación de diversas materias primas, y un mismo tipo de materia prima puede utilizarse en muchos lotes. Estas materias primas son entregadas por los proveedores: un proveedor puede suministrar distintos tipos de materia prima, y cada materia prima puede ser ofrecida por varios proveedores. Las unidades de un mismo lote pueden distribuirse en varias bodegas, y cada bodega puede almacenar unidades de múltiples lotes.
 
-Según el tipo de producto, un lote puede requerir fermentación. Cuando aplica, cada lote es sometido a un único proceso de fermentación y cada fermentación corresponde a un único lote. La fermentación se realiza en tanques: una fermentación puede llevarse a cabo en varios tanques en momentos distintos, y un tanque solo atiende una fermentación a la vez.
+Según el tipo de producto, un lote puede requerir fermentación. Cuando aplica, cada lote es sometido a un único proceso de fermentación y cada fermentación corresponde a un único lote. La fermentación se realiza en equipos especializados (tanques): una fermentación puede llevarse a cabo en varios equipos en momentos distintos, y un equipo solo atiende una fermentación a la vez.
 
-También según el producto, un lote puede requerir destilación. En ese caso, un lote puede tener varios ciclos de destilación y cada ciclo de destilación corresponde a un único lote. La destilación se realiza en alambiques. Cada ciclo usa un solo alambique. Un alambique puede realizar muchos ciclos, pero no al mismo tiempo.
+También según el producto, un lote puede requerir destilación. En ese caso, un lote puede tener varios ciclos de destilación y cada ciclo de destilación corresponde a un único lote. La destilación se realiza en equipos especializados (alambiques). Cada ciclo usa un solo equipo. Un equipo puede realizar muchos ciclos, pero no al mismo tiempo.
 
 Para garantizar los estándares, a cada lote se le aplican distintos tipos de pruebas de calidad, y un mismo tipo de prueba puede aplicarse a múltiples lotes. Las pruebas son realizadas por los empleados; un empleado puede ejecutar muchas pruebas, y un mismo tipo de prueba puede ser llevada a cabo por diferentes empleados.
 
 ---
 
 ## Entidades del Modelo
+
+> **Nota:** El modelo implementa una estructura supertype/subtype para los equipos de producción, donde `EQUIPO` es el supertype que contiene atributos comunes, y `TANQUE_FERMENTACION` y `ALAMBIQUE` son subtypes que heredan de `EQUIPO` y añaden atributos específicos.
 
 ### FABRICA
 
@@ -117,7 +119,7 @@ Para garantizar los estándares, a cada lote se le aplican distintos tipos de pr
 ```
 # idLote
 * idProducto (FK)
-* numeroLote
+* numeroLote [unique]
 * cantidad
 * unidadMedida
 * fechaProduccion
@@ -133,63 +135,76 @@ Para garantizar los estándares, a cada lote se le aplican distintos tipos de pr
 
 ```
 # idFermentacion
-* idLote (FK)
-* fechaInicio
-* fechaFin
+* idLote (FK) [unique]
+* fechaInicio (datetime)
 * temperatura
 * estado (iniciada|enProceso|finalizada|cancelada)
-° tiempoEstimado
+° fechaFin (datetime)
+° tiempoEstimado (horas)
 ° observaciones
 ```
 
-**Justificación:** Proceso bioquímico crítico con ciclo de vida independiente. Requiere monitoreo constante de parámetros (temperatura, tiempo), puede fallar independientemente del lote, y gestiona recursos especializados (tanques). No es simplemente un estado del lote sino un proceso complejo.
+**Justificación:** Proceso bioquímico crítico con ciclo de vida independiente. Requiere monitoreo constante de parámetros (temperatura, tiempo), puede fallar independientemente del lote, y gestiona recursos especializados (tanques). No es simplemente un estado del lote sino un proceso complejo. Relación 1:1 con LOTE.
+
+### EQUIPO
+
+```
+# idEquipo
+* idFabrica (FK)
+* numero [unique]
+* capacidad
+* material
+* tipoEquipo (tanqueFermentacion|alambique)
+* estado (disponible|ocupado|mantenimiento)
+° ubicacion
+° fechaUltimoMantenimiento
+° fechaAdquisicion
+° valorAdquisicion
+° observaciones
+```
+
+**Justificación:** Supertype que representa todos los equipos de producción de la fábrica. Centraliza atributos comunes como capacidad, material y estado. Permite gestión unificada de mantenimiento y control de disponibilidad para optimizar la programación de producción.
 
 ### TANQUE_FERMENTACION
 
 ```
-# idTanque
-* numero
-* capacidad
-* material
-* estado (disponible|ocupado|mantenimiento)
-° ubicacion
-° fechaUltimoMantenimiento
+# idEquipo (FK)
+° volumenUtilMaximo
+° sistemaAgitacion
+° controlTemperatura (T|F) [default: false]
 ```
 
-**Justificación:** Activos físicos especializados con características que afectan el proceso (capacidad, material). Su disponibilidad impacta la programación de producción y requieren mantenimiento programado con historial propio.
+**Justificación:** Subtype específico para tanques de fermentación. Hereda todos los atributos de EQUIPO y añade características específicas del proceso de fermentación como sistema de agitación y control de temperatura.
 
 ### ALAMBIQUE
 
 ```
-# idAlambique
-* numero
-* capacidad
+# idEquipo (FK)
 * tipoAlambique (continuo|discontinuo|columna)
-* estado (disponible|ocupado|mantenimiento)
-° material
-° ubicacion
-° fechaUltimoMantenimiento
+° numeroColumnas [default: 1]
+° temperaturaMaxima
+° presionTrabajo
 ```
 
-**Justificación:** Equipos críticos cuyo tipo determina las características del destilado final. Requieren programación especializada, mantenimiento técnico y control de disponibilidad para optimizar la producción.
+**Justificación:** Subtype específico para alambiques de destilación. Hereda todos los atributos de EQUIPO y añade características técnicas específicas de destilación como tipo, número de columnas y parámetros operativos.
 
 ### CICLO_DESTILACION
 
 ```
 # idCicloDestilacion
 * idLote (FK)
-* idAlambique (FK)
+* idEquipo (FK)
 * numeroCiclo
-* fechaInicio
-* fechaFin
+* fechaInicio (datetime)
 * temperatura
 * estado (iniciado|enProceso|finalizado|cancelado)
+° fechaFin (datetime)
 ° gradoAlcoholicoEntrada
 ° gradoAlcoholicoSalida
 ° observaciones
 ```
 
-**Justificación:** Cada ejecución de destilación produce resultados únicos con parámetros específicos. Un lote puede requerir múltiples ciclos, cada uno con características que afectan la calidad final y requieren trazabilidad individual.
+**Justificación:** Cada ejecución de destilación produce resultados únicos con parámetros específicos. Un lote puede requerir múltiples ciclos, cada uno con características que afectan la calidad final y requieren trazabilidad individual. La referencia a EQUIPO asegura que solo se usen alambiques para destilación.
 
 ### PRUEBA_CALIDAD
 
@@ -205,6 +220,24 @@ Para garantizar los estándares, a cada lote se le aplican distintos tipos de pr
 ```
 
 **Justificación:** Catálogo de análisis con metodologías específicas y parámetros de aceptación únicos. Reutilizable para múltiples lotes, permite estandarización de procesos y cumplimiento de regulaciones sanitarias.
+
+### MANTENIMIENTO_EQUIPO
+
+```
+# idMantenimiento
+* idEquipo (FK)
+* idEmpleado (FK)
+* tipoMantenimiento (preventivo|correctivo|emergencia)
+* fechaProgramada
+* descripcionTrabajo
+° fechaEjecucion
+° fechaFinalizacion
+° costo
+° estado (programado|enProceso|completado|cancelado)
+° observaciones
+```
+
+**Justificación:** Registro histórico de todas las actividades de mantenimiento realizadas en los equipos. Fundamental para control de costos, programación de mantenimiento preventivo y seguimiento del estado operativo de los activos productivos.
 
 ---
 
@@ -244,13 +277,13 @@ Para garantizar los estándares, a cada lote se le aplican distintos tipos de pr
 ° observaciones
 ```
 
-### FERMENTACION_TANQUE
+### FERMENTACION_EQUIPO
 
 ```
 # idFermentacion (FK)
-# idTanque (FK)
-* fechaInicio
-* fechaFin
+# idEquipo (FK)
+# fechaInicio (datetime)
+° fechaFin (datetime)
 ° observaciones
 ```
 
@@ -259,7 +292,7 @@ Para garantizar los estándares, a cada lote se le aplican distintos tipos de pr
 ```
 # idLote (FK)
 # idPruebaCalidad (FK)
-# fechaPrueba
+# fechaPrueba (datetime)
 * resultado
 * unidadMedida
 * cumpleEstandar (T|F)
@@ -272,7 +305,7 @@ Para garantizar los estándares, a cada lote se le aplican distintos tipos de pr
 # idEmpleado (FK)
 # idLote (FK)
 # idPruebaCalidad (FK)
-# fechaPrueba
+# fechaPrueba (datetime)
 * responsable (T|F)
 ° observaciones
 ```
@@ -299,14 +332,18 @@ Para garantizar los estándares, a cada lote se le aplican distintos tipos de pr
 - **FABRICA → PRODUCTO**: Una fábrica produce múltiples productos
 - **FABRICA → BODEGA**: Una fábrica opera múltiples bodegas
 - **FABRICA → EMPLEADO**: Una fábrica emplea múltiples trabajadores
+- **FABRICA → EQUIPO**: Una fábrica posee múltiples equipos de producción
 - **PRODUCTO → LOTE**: Un producto genera múltiples lotes a lo largo del tiempo
 - **LOTE → CICLO_DESTILACION**: Un lote puede pasar por múltiples ciclos de destilación
-- **ALAMBIQUE → CICLO_DESTILACION**: Un alambique realiza múltiples ciclos en el tiempo
-- **FERMENTACION → TANQUE_FERMENTACION**: Una fermentación puede usar múltiples tanques
+- **EQUIPO → CICLO_DESTILACION**: Un equipo (alambique) realiza múltiples ciclos en el tiempo
+- **EQUIPO → MANTENIMIENTO_EQUIPO**: Un equipo puede tener múltiples mantenimientos
+- **EMPLEADO → MANTENIMIENTO_EQUIPO**: Un empleado puede realizar múltiples mantenimientos
 
 ### Relaciones 1:1
 
 - **LOTE ↔ FERMENTACION**: Un lote puede requerir una fermentación (opcional)
+- **EQUIPO ↔ TANQUE_FERMENTACION**: Relación supertype-subtype
+- **EQUIPO ↔ ALAMBIQUE**: Relación supertype-subtype
 
 ### Relaciones M:N
 
@@ -316,6 +353,7 @@ Para garantizar los estándares, a cada lote se le aplican distintos tipos de pr
 - **LOTE ↔ PRUEBA_CALIDAD**: Un lote se somete a múltiples pruebas
 - **EMPLEADO ↔ PRUEBA_CALIDAD**: Un empleado puede realizar múltiples tipos de pruebas
 - **PROVEEDOR ↔ MATERIA_PRIMA**: Un proveedor suministra múltiples materias primas
+- **FERMENTACION ↔ EQUIPO**: Una fermentación puede usar múltiples equipos (tanques)
 
 ---
 
