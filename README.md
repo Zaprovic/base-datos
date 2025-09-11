@@ -15,3 +15,124 @@ También según el **producto**, un **lote** puede requerir destilación. En ese
 
 
 Para garantizar los estándares, a cada **lote** se le aplican distintos tipos de **pruebas de calidad**, donde cada **Tipo_Prueba** se identifica con un **idTipoPrueba** y se define por su **nombre** y el **metodo** a utilizar. Un mismo tipo de **prueba** puede aplicarse a múltiples **lotes**. El registro de cada **Ejecucion_Prueba** vincula el **idLote**, el **idTipoPrueba** y la **fecha** en que se realizó. Además, es fundamental registrar el **idEmpleado** responsable y el **resultado** obtenido en dicha **prueba**. Las **pruebas** son realizadas por los **empleados**; un **empleado** puede ejecutar muchas **pruebas**, y un mismo tipo de prueba puede ser llevada a cabo por diferentes **empleados**.
+
+
+#### **FABRICA**
+- `# idFabrica`
+- `* razónSocial`
+- `* nit`
+- `* dirección`
+- `° nombreComercial`
+
+#### **PRODUCTO**
+- `# idProducto`
+- `* idFabrica`
+- `* nombre`
+- `* tipoProducto`
+
+#### **EMPLEADO**
+- `# idEmpleado`
+- `* idFabrica`
+- `* nombre`
+- `° cargo`
+- `° permisos`
+- `° estado (activo | inactivo)`
+- `° telefono`
+- `° email`
+
+#### **BODEGA**
+- `# idBodega`
+- `* idFabrica`
+- `* tipoBodega (materiasPrimas | productoTerminado)`
+- `* esRefrigerada (T | F)`
+- `* dirección`
+- `° nombre`
+- `° temperatura`
+- `° capacidad`
+
+#### **LOTE**
+- `# idLote`
+- `* idProducto`
+- `* fechaInicio`
+- `° fechaFin`
+- `° cantidad`
+- `° unidad (unidades | L | kg | cajas, …)`
+- `° estado ( enProceso | aprobado | rechazado)`
+
+#### **PROVEEDOR**
+- `# idProveedor`
+- `* razonSocial`
+- `* nit`
+- `° telefono`
+- `° email`
+- `° ciudad`
+- `° pais`
+- `° direccion`
+- `° estado`
+
+#### **MATERIA_PRIMA**
+- `# idMateriaPrima`
+- `* nombre`
+- `* unidad (L, kg, g, mL, etc)`
+- `° perecedera (T | F)`
+- `° vidaUtilDias`
+
+#### **PROVEEDOR_MATERIA**
+- `# idProveedor`
+- `# idMateriaPrima`
+- `* precio`
+- `° moneda`
+
+#### **FERMENTACIÓN**
+- `# idFermentacion`
+- `* idLote`
+- `* fechaInicio`
+- `° fechaFin`
+- `° temperaturaObjetivo`
+
+#### **TANQUE**
+- `# idEquipo`
+- `° tipoTanque (abierto | cerrado, ...)`
+
+#### **USO_TANQUE**
+- `# idFermentacion`
+- `# idTanque`
+- `# fechaInicio`
+- `° fechaFin`
+
+#### **CICLO_DESTILACION**
+- `# idCiclo`
+- `* idLote`
+- `* idAlambique`
+- `* fechaInicio`
+- `° fechaFin`
+- `° volumenEntrada`
+- `° volumenSalida`
+- `° gradoAlcohol`
+
+#### **ALAMBIQUE**
+- `# idEquipo`
+- `* tipoAlambique (olla | columna)`
+- `° material (cobre | acero, …)`
+
+#### **EQUIPO**
+- `# idEquipo`
+- `* idFabrica`
+- `° capacidad`
+- `° unidadCapacidad`
+- `° estado (activo | mantenimiento)`
+- `° fabricante`
+- `° modelo`
+- `° numeroSerie`
+
+#### **TIPO_PRUEBA**
+- `# idTipoPrueba`
+- `* nombre`
+- `° metodo`
+
+#### **EJECUCION_PRUEBA**
+- `# idLote`
+- `# idTipoPrueba`
+- `# fecha`
+- `* idEmpleado`
+- `° resultado`
