@@ -137,3 +137,37 @@ Para garantizar los estándares, a cada **lote** se le aplican distintos tipos d
 - `# fecha`
 - `* idEmpleado`
 - `° resultado`
+
+## Relaciones
+
+#### **FÁBRICA – PRODUCTO**
+Una fábrica debe producir muchos productos (1:N). Un producto debe ser elaborado por una única fábrica (N:1).
+#### **FÁBRICA – BODEGA**
+Una fábrica puede tener varias bodegas (1:N). Cada bodega debe pertenecer a una fábrica (N:1).
+#### **FÁBRICA – PROVEEDOR**
+Una fábrica puede ser abastecida por varios proveedores (M:N). Un proveedor puede abastecer a varias fábricas (M:N).
+#### **FÁBRICA – EMPLEADO**
+Una fábrica puede emplear muchos empleados (1:N). Un empleado debe trabajar en una sola fábrica (N:1).
+#### **BODEGA – PRODUCTO/LOTE**
+Una bodega puede almacenar unidades de muchos lotes (M:N). Un lote puede ser distribuido en varias bodegas (M:N).
+#### **PRODUCTO – LOTE**
+Un producto puede originar múltiples lotes (1:N). Cada lote debe corresponder a un único producto (N:1).
+#### **LOTE – MATERIA PRIMA**
+Un lote puede estar compuesto de muchas materias primas (M:N). Una materia prima puede ser utilizada en muchos lotes (M:N).
+#### **MATERIA PRIMA – PROVEEDOR**
+Una materia prima puede ser provista por muchos proveedores (M:N). Un proveedor puede suministrar distintas materias primas (M:N).
+#### **LOTE – FERMENTACIÓN**
+Un lote puede requerir un proceso de fermentación (1:1 opcional). Una fermentación debe estar
+asociada a un único lote (1:1).
+#### **FERMENTACIÓN – TANQUE**
+Un proceso de fermentación puede usar varios tanques en diferentes momentos (1:N). Un tanque solo puede ejecutar un proceso de fermentación a la vez (N:1 en un instante).
+#### **LOTE – DESTILACIÓN**
+Un lote puede pasar por varios ciclos de destilación (1:N). Cada ciclo debe corresponder a un único lote (N:1).
+#### **CICLO DE DESTILACIÓN – ALAMBIQUE**
+Un ciclo debe usar un alambique (N:1). Un alambique puede realizar muchos ciclos en el tiempo (1:N).
+#### **LOTE – PRUEBA DE CALIDAD**
+Un lote puede estar sujeto a muchas pruebas (M:N). Una prueba puede aplicarse a varios lotes (M:N).
+#### **PRUEBA DE CALIDAD – EMPLEADO**
+Un empleado puede realizar muchas pruebas (1:N). Una prueba puede ser ejecutada por varios
+empleados (M:N).
+
