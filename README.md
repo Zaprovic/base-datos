@@ -16,6 +16,7 @@ También según el **producto**, un **lote** puede requerir destilación. En ese
 
 Para garantizar los estándares, a cada **lote** se le aplican distintos tipos de **pruebas de calidad**, donde cada **Tipo_Prueba** se identifica con un **idTipoPrueba** y se define por su **nombre** y el **metodo** a utilizar. Un mismo tipo de **prueba** puede aplicarse a múltiples **lotes**. El registro de cada **Ejecucion_Prueba** vincula el **idLote**, el **idTipoPrueba** y la **fecha** en que se realizó. Además, es fundamental registrar el **idEmpleado** responsable y el **resultado** obtenido en dicha **prueba**. Las **pruebas** son realizadas por los **empleados**; un **empleado** puede ejecutar muchas **pruebas**, y un mismo tipo de prueba puede ser llevada a cabo por diferentes **empleados**.
 
+## Entidades
 
 #### **FABRICA**
 - `# idFabrica`
